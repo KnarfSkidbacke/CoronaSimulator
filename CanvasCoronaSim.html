@@ -28,7 +28,7 @@ var imgdata = ctx.getImageData(0,0, c.width, c.height);
 var imgdatalen = imgdata.data.length;
 //var imgdata2 = imagdata;
 
-var updatecount = 1;
+var updatecount = 0;
 
 var refreshIntervalId = setInterval(myTimer, 20);
 
@@ -217,14 +217,12 @@ function TestDemographicAgeDistribution(){
  
 /*
 CoronoSimulator
-each imagedata pixel has 4 data attributes relating to the pixelcolor a,r,g,b.
-We will use these attributes to store data about the a persona health condition.
 We model one pixel to be one person
 A person has the following parameters/attributes
 location (x,y) position
 age
 health condition
-contact index = meet all familiy members index ratio = dayes all meet and total number of days per year (365d)
+social contact index = meet all familiy members index ratio = dayes all meet and total number of days per year (365d)
 
 the coronavirus is distributed using a filter that uses in the 4 closest pixels to the active pixel
  - the maxvalue for a pixel parameter is extracted and it is decided if the close pixel shall be infected.
@@ -428,7 +426,7 @@ function CoronaSimulator(){
 		  //deseasLevel=infectionLevel[j]-hf+Math.round(hf*Math.sin(Math.PI*(8+infectionTimeStep[j])/32));
 		  //deseasLevel=health[j]+Math.round(hf*Math.sin(df*infectionTimeStep[j]));
           
-		  deathrateCorrectionFactor=0.03*(age[j]/ageAverageLifeTime)*socialContactIndex;
+		  deathrateCorrectionFactor=0.027*Math.pow(age[j]/ageAverageLifeTime, 2)*socialContactIndex; // use square to adjust for higher prpability for older to die
           if ((xi==xzero) && (yi==yzero)){console.log("I %i D %i R %i deathRateF %f",
                 infectionLevel[j], deseasLevel, myRandomInteger(0,1), deathrateCorrectionFactor);}
 		  
@@ -502,10 +500,11 @@ function CoronaSimulator(){
   console.log(strtxt);
   //console.log("\nCycle %i Infected %i Dead %i Survived %i",updatecount, infectionCount, deathCount, survivorCount);
   
-  if (updatecount%7==0){ // very 7 cycles - weekly
-    weeks=Math.round(updatecount/7);
-	strtxt2="<h2>Corona DeathAge Week "+weeks+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
-    for(var i=0;i<=100;i++){strtxt2=strtxt2+"<tr><th>"+i+"</th><th>"+coronaDeathAge[i]+"</th></tr>";}
+  if (updatecount%25==0){ //  use 25 cycles as it is not clear a cycle is a day , could be hours och ?? every 7 cycles - weekly
+    //weeks=Math.round(updatecount/7);
+	//strtxt2="<h2>Corona DeathAge Cycles "+weeks+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
+    strtxt2="<h2>Corona DeathAge Cycles "+updatecount+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
+	for(var i=0;i<=100;i++){strtxt2=strtxt2+"<tr><th>"+i+"</th><th>"+coronaDeathAge[i]+"</th></tr>";}
     document.getElementById("utdata2").innerHTML = strtxt2;
   }
   
@@ -521,8 +520,9 @@ updatecount++;
 if ((updatecount>2)&&(infectionCount==0)){
   clearInterval(refreshIntervalId);
   document.getElementById("utdata1").innerHTML = strtxt + " Simulation finished !";
-  weeks=Math.round(updatecount/7);
-  strtxt2="<h2>Corona DeathAge Week "+weeks+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
+  //weeks=Math.round(updatecount/7);
+  //strtxt2="<h2>Corona DeathAge Cycles "+weeks+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
+  strtxt2="<h2>Corona DeathAge Cycles "+updatecount+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
   for(var i=0;i<=100;i++){strtxt2=strtxt2+"<tr><th>"+i+"</th><th>"+coronaDeathAge[i]+"</th></tr>";}
   document.getElementById("utdata2").innerHTML = strtxt2;
 };
