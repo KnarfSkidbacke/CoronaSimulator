@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+/* This stylesheet sets the width of all images to 100%: */
+canvas {
+  width: 100%;
+  height: 100%;
+}
+</style>
+</head>
+
+<body>
+<p id="utdata1"></p>
+
+<canvas id="myCanvas" width="1024" height="512" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script>
+//CoronaSim createdby Frank Schliephacke 2020-04-03
+
+//<canvas id="myCanvas" width="800" height="400" style="border:1px solid #d3d3d3;">
+
+var c = document.getElementById("myCanvas");
+var ctx = c.getContext("2d");
+
+var imgdata = ctx.getImageData(0,0, c.width, c.height);
+var imgdatalen = imgdata.data.length;
+//var imgdata2 = imagdata;
+
+var updatecount = 1;
+
+var refreshIntervalId = setInterval(myTimer, 20);
+
+function myTimer() {
+  //var d = new Date();
+  //document.getElementById("demo").innerHTML = d.toLocaleTimeString();
+  CoronaSim();
+}
+
+// ========================================================================
+// DEMOGRAHIC data
+
+let agedistribution=[];
+let agedata=[];
+var ageaverage=0;
+
+function DemographicAgeDistributionInit(){
+  // demographic data for sweden 2019, from scb.se
+  let men = [59476,60993,61598,63965,63535,64161,63519,63972,63414,65919, 
+               64233,63762,62750,62344,60263,60386,59498,58491,57736,59961,
+			   64376,60503,58489,61097,66159,70492,73547,76966,78952,80028,
+			   76764,75932,71904,71858,70723,68333,66506,66725,65114,67217,
+			   65148,62908,63645,64138,66103,68709,67293,68359,67822,66025,64919,
+			   67302,70487,70875,70581,69700,65138,61558,59022,57933,57990,57235,
+			   57169,57251,55203,53745,54360,53382,51846,53773,54664,55463,55119,
+			   54668,53480,51059,46126,41314,34971,31783,30052,27039,24035,21536,
+			   18916,16221,14397,12938,11057,9376,7438,6188,4694,3686,2734,1956,
+			   1372,917,583,377,375];
+			   
+
+let women = [55907,
+57783,
+58432,
+60716,
+59313,
+60408,
+59816,
+60569,
+60057,
+62249,
+60664,
+59892,
+59155,
+58855,
+57101,
+56558,
+56025,
+54729,
+52590,
+52935,
+52239,
+52627,
+53806,
+57084,
+61319,
+66703,
+69686,
+72657,
+74405,
+76260,
+73098,
+71947,
+69262,
+68001,
+66402,
+64208,
+62870,
+62884,
+62423,
+64318,
+62291,
+60497,
+61100,
+61538,
+63895,
+66563,
+65385,
+66377,
+66105,
+64454,
+63074,
+65592,
+68126,
+68394,
+68405,
+68104,
+62961,
+60205,
+58018,
+57469,
+57024,
+56724,
+57269,
+56590,
+55935,
+54350,
+55150,
+54545,
+53663,
+55234,
+56858,
+58441,
+58022,
+57642,
+56058,
+54018,
+49806,
+44679,
+38796,
+36046,
+35250,
+33085,
+29994,
+27974,
+25169,
+23265,
+21249,
+20111,
+18373,
+16642,
+14012,
+12343,
+10312,
+8433,
+6804,
+5361,
+3869,
+2738,
+2126,
+1477,
+1832
+];
+
+if (women.length!=men.length){
+  console.log("ERROR Arraylengt do not match %i %i",women.length,men.length);
+}
+
+  ageaverage=0;
+  var nsum=0;
+  var alen=women.length;
+  alen=Math.min(alen,men.length);
+  for(var i=0;i<alen;i++){
+    agedistribution[i]=men[i]+women[i];
+    console.log("%i M %i W %i SUM %i",i,men[i],women[i],agedistribution[i]);
+	ageaverage=ageaverage+i*agedistribution[i];
+	nsum=nsum+agedistribution[i];
+  }
+  ageaverage=Math.round(ageaverage/nsum);
+  console.log("Age average %i",ageaverage);
+  
+  var count=0; 
+  for(var i=0;i<alen;i++){
+    for(var j=0;j<agedistribution[i];j++){
+	  agedata[count]=i;
+      //console.log("%i M %i W %i SUM %i",i,men[i],women[i],);
+	  count++;
+	}
+  }
+  console.log("age length %i",agedata.length);
+  
+}
+DemographicAgeDistributionInit()
+
+
+function TestDemographicAgeDistribution(){
+  let adata=[];
+  for(var n=0;n<100;n++){adata[n]=0};
+  
+  for(var n=0;n<=100;n++){
+    for(var y=0;y<=c.height;y++){
+      var aidx=Math.floor(agedata.length*Math.random());
+      var x=agedata[aidx];  // random age - based on demographic distibution
+      //console.log("X %i Y %i idx %i",x,y,aidx);
+      setpix(x,y,255,0,0,255);
+	  adata[x]++;
+	}
+  }
+  
+  console.log("\n");
+  for(var n=0;n<100;n++){console.log("A %i N %i",n,adata[n])};
+}
+//TestDemographicAgeDistribution();
+
+// ========================================================================
+
+ 
+/*
+CoronoSimulator
+each imagedata pixel has 4 data attributes relating to the pixelcolor a,r,g,b.
+We will use these attributes to store data about the a persona health condition.
+We model one pixel to be one person
+A person has the following parameters/attributes
+location (x,y) position
+age
+health condition
+contact index = meet all familiy members index ratio = dayes all meet and total number of days per year (365d)
+
+the coronavirus is distributed using a filter that uses in the 4 closest pixels to the active pixel
+ - the maxvalue for a pixel parameter is extracted and it is decided if the close pixel shall be infected.
+
+
+*/
+
+
+
+function myRandomInteger(minint, maxint){
+  return Math.floor((1+maxint)*Math.random()) + minint;
+}
+
+function setpix(x,y,r,g,b,a) {
+  var j = (y-1)*c.width+x;
+  imgdata.data[4*j] = r;
+  imgdata.data[4*j+1] = g;
+  imgdata.data[4*j+2] = b;
+  imgdata.data[4*j+3] = a;
+}
+
+function getPixValue(x,y,n) {
+  var j = (y-1)*c.width+x;
+  var maxvalue = 0;
+  maxvalue = imgdata.data[4*j+n];
+  return maxvalue;
+}
+
+function maxPixValueFilterA(x,y,n) {
+  // slow
+  var maxvalue = 0;
+  // Note: here x,y is included in the maxvalue  - due to loops
+  for(var ix=-1;ix<1;ix++){
+    for(var iy=-1;iy<1;iy++){
+      var j = (iy+y-1)*c.width+x+ix;
+      maxvalue = Math.max(maxvalue,imgdata.data[4*j+n]);
+      /*
+	  if (n == 0) {maxvalue = Math.max(maxvalue,imgdata.data[4*j])};
+      if (n == 1) {maxvalue = Math.max(maxvalue,imgdata.data[4*j+1])}; // g
+      if (n == 2) {maxvalue = Math.max(maxvalue,imgdata.data[4*j+2])}; // b
+      if (n == 3) {maxvalue=Math.max(maxvalue,imgdata.data[4*j+3])}; // a;
+	  */
+    }
+  }
+  return maxvalue;
+}
+
+function maxPixValueFilterB(x,y,n) {
+  // fast
+  var maxvalue = 0;
+  // Note: here x,y value is not included in maxvalue
+  var j = (1+y-1)*c.width+x+1;  
+  maxvalue = Math.max(maxvalue,imgdata.data[4*j+n]);
+  j = (1+y-1)*c.width+x-1;  
+  maxvalue = Math.max(maxvalue,imgdata.data[4*j+n]);
+  j = (-1+y-1)*c.width+x+1;  
+  maxvalue = Math.max(maxvalue,imgdata.data[4*j+n]);
+  j = (-1+y-1)*c.width+x-1;  
+  maxvalue = Math.max(maxvalue,imgdata.data[4*j+n]);
+  return maxvalue;
+}
+
+function makeBlack(){
+  // cls
+  for(var i=0;i<imgdatalen/4;i++){  //iterate over every pixel in the canvas
+    imgdata.data[4*i] = 0; //Math.floor(Math.random() * 255); //255;    // RED (0-255)
+    imgdata.data[4*i+1] = 0; //Math.floor(Math.random() * 255);    // GREEN (0-255)
+    imgdata.data[4*i+2] = 0; //Math.floor(Math.random() * 255);    // BLUE (0-255)
+    imgdata.data[4*i+3] = 255; //Math.floor(Math.random() * 255); //255;  // APLHA (0-255)
+  }
+}
+makeBlack();
+
+function sinus(){
+  var pf = 2.0*Math.PI/c.width; // 2*PI
+  var amplitude=c.height/(2.0*15.0);
+  for(var x=0;x<=c.width;x++){
+    var y=Math.round(0.5*c.height+Math.sin(pf*x)*amplitude);
+    setpix(x,y,0,255,0,255); // sinus
+    
+    setpix(x,Math.round(0.80*c.height),0,0,255,255); // horizon
+    /*
+    var j=(y-1)*c.width+x;
+    //console.log("%i %i %i %i", x,y,imgdatalen/4,j); // chrome debug
+    // Pixel 1
+    imgdata.data[4*j] = 255;
+    imgdata.data[4*j+1] = 0;
+    imgdata.data[4*j+2] = 0;
+    imgdata.data[4*j+3] = 255;
+    */  
+  }
+}
+//sinus();
+
+
+
+//function DemographicAge(){
+//  return myRandomInteger(0, 2000);
+//}
+
+var deathrateCorrectionFactor = 1.0;
+var icu=0; // intensive care
+var ratio_icu_dthr = 1.4;
+var dtf = 16;
+var df = Math.PI/dtf; // deasease function factor
+var hf = 32; // Health variation factor for deseas function
+var socialContactIndex = 1.1; // for SE - housing, living with old people 
+var xzero=0;
+var yzero=0;
+
+var weeks=0;
+var strtxt2="";
+
+//var alen = Math.round(imgdatalen/4);
+var health = [0];
+for(var i=0;i<imgdatalen/4;i++){health[i]=1+Math.floor(127*Math.random());} // below zero = death, alive 1+127
+var infectionLevel = [0];
+for(var i=0;i<imgdatalen/4;i++){infectionLevel[i]=0;}
+
+var infectionTimeStep = [0];
+for(var i=0;i<imgdatalen/4;i++){infectionTimeStep[i]=0;}
+
+var lastDeseasLevel = [0];
+for(var i=0;i<imgdatalen/4;i++){lastDeseasLevel[i]=0;}
+
+var coronaDeathAge = [];
+for(var i=0;i<=100;i++){coronaDeathAge[i]=0;}
+
+var ageAverageLifeTime=83.5;
+
+
+let age = [];
+for(var i=0;i<imgdatalen/4;i++){
+  var aidx=Math.floor(agedata.length*Math.random());
+  age[i]=agedata[aidx];
+}
+
+
+function CoronaSimInit(){  
+  // initialise zero persom
+  var xi = 1+Math.floor((c.width-1)*Math.random());
+  var yi = 1+Math.floor((c.height-1)*Math.random());
+  
+  xzero=xi;
+  yzero=yi;
+  setpix(xi,yi,255,0,0,255);
+  var j = (yi-1)*c.width+xi;
+  //infectionLevel[j] - set zero infected
+  infectionLevel[j]=myRandomInteger(64,128);
+  //infectionLevel[j]=127;
+  console.log("ZeroInfection X %i Y %i L %i H %i", xi, yi, infectionLevel[j], health[j]);
+}
+CoronaSimInit();
+
+var strtxt="";
+var infectionCount=0;
+var icumax=0;
+
+  
+function CoronaSim(){
+
+function CoronaSimulator(){
+  //
+  // one timestep - parse over pixel grid
+  for(var xi=1;xi<c.width-1;xi++){
+    for(var yi=1;yi<c.height-1;yi++){
+	  var j = (yi-1)*c.width+xi;
+	  if (infectionLevel[j]==0){
+	    // new infection
+		var infection = maxPixValueFilterB(xi,yi,0); // use r of rgb pixel to indicate infection
+        //var infection = socialContactIndex * maxPixValueFilterB(xi,yi,0);
+		
+		infection=Math.min(infection,myRandomInteger(-10,90));
+		//infection=myRandomInteger(1,infection);
+		if ((infection>0) && (infection<=255) && (myRandomInteger(-10,90)>0)){
+	      //setpix(xi,yi,255,0,0,255);
+		  infectionLevel[j]=infection; // any value > 0
+          //infectionLevel[j]=infection;
+		  //infectionLevel[j]=myRandomInteger(32,196);
+		  //console.log("NewInfection X %i Y %i L %i",xi,yi,infection);
+	    }	  
+	  }
+	}
+  }
+  // counter-increment
+  var deathCount=0;
+  //var infectionCount=0;
+  infectionCount=0;
+  var survivorCount=0;
+  // update image data - to display
+  for(var xi=1;xi<c.width-1;xi++){
+    for(var yi=1;yi<c.height-1;yi++){
+	  var j = (yi-1)*c.width+xi;
+	  if (infectionLevel[j]>0){
+	    //infectionCount++;
+	    var deseasLevel=0;
+		if (infectionTimeStep[j]>0){
+		  hf=health[j];
+		  deseasLevel=hf+Math.round(hf*Math.sin(Math.PI*(8+infectionTimeStep[j])/32)); // 0 - 255
+		  //deseasLevel=infectionLevel[j]+Math.round(hf*Math.sin(Math.PI*(8+infectionTimeStep[j])/32)); // 0 - 255
+		  //deseasLevel=infectionLevel[j]-hf+Math.round(hf*Math.sin(Math.PI*(8+infectionTimeStep[j])/32));
+		  //deseasLevel=health[j]+Math.round(hf*Math.sin(df*infectionTimeStep[j]));
+          
+		  deathrateCorrectionFactor=0.03*(age[j]/ageAverageLifeTime)*socialContactIndex;
+          if ((xi==xzero) && (yi==yzero)){console.log("I %i D %i R %i deathRateF %f",
+                infectionLevel[j], deseasLevel, myRandomInteger(0,1), deathrateCorrectionFactor);}
+		  
+		  if ((deseasLevel<=0) && (Math.random()<=deathrateCorrectionFactor)){  // deathrate
+		    //deathCount++;
+			coronaDeathAge[age[j]]++;
+			deseasLevel=0; 
+			health[j]=0; // death !
+			infectionLevel[j]=-1;
+			console.log("Death X %i Y %i L %i T %i D %i",xi,yi,infectionLevel[j],infectionTimeStep[j],deseasLevel);
+			setpix(xi,yi,0,255,0,255);
+		  }
+		}
+		if ((infectionLevel[j]>0)&&(deseasLevel>infectionLevel[j])&&
+		         (deseasLevel>lastDeseasLevel)&&(infectionTimeStep[j]>1)){
+		  infectionLevel[j]=-1; // healthy again
+		  //survivorCount++;
+		}
+		
+		infectionTimeStep[j]++;
+		if (health[j]>0){
+		  if ((deseasLevel>=0) && (deseasLevel<=255)){
+		    setpix(xi,yi,255,0,deseasLevel,255);
+		  } else {
+		    setpix(xi,yi,255,0,0,255);
+		  }
+		}
+		
+		
+		
+		/*
+		if (updatecount%5==0){
+		  if (deseasLevel>0){
+		    console.log("Infection X %i Y %i L %i T %i D %i",xi,yi,infectionLevel[j],infectionTimeStep[j],deseasLevel);
+	      }
+		}
+		*/
+		
+		/*
+		// debug - only follow 1 person - zero infected
+		if ((xi==xzero) && (yi==yzero)){
+		    console.log("ZeroInfection X %i Y %i L %i T %i D %i H %i",
+			    xi,yi,infectionLevel[j],infectionTimeStep[j],deseasLevel,health[j]);
+	    }
+		*/
+		
+		lastDeseasLevel=deseasLevel;
+        		
+	  } 
+	  else {
+	    // 100% healthy
+	    if (health[j]>0){ setpix(xi,yi,0,0,0,255);}
+		//infectionLevel[j]=0;
+		infectionTimeStep[j]=0;
+		//console.log("Healthy X %i Y %i L %i T %i",xi,yi,infectionLevel[j],infectionTimeStep[j]);		
+	  }
+	  
+	  if ((infectionLevel[j]<=0)&&(health[j]>0)){survivorCount++;} // healthy again
+	  if (health[j]==0){deathCount++;} // dead  
+	  if ((infectionLevel[j]>0)&&(health[j]>0)){infectionCount++;} // infected
+		
+  	}
+  }
+  strtxt= "Cycle "+ updatecount +" Infected "+  infectionCount + " Dead "+ deathCount + " Healthy "+ survivorCount; 
+  var drate100000=deathrateCorrectionFactor.toFixed(4);
+  icu=Math.round(0.08*infectionCount);
+  icumax=Math.max(icumax,icu);
+  var socialidx=socialContactIndex.toFixed(2);
+  strtxt=strtxt+" ICU "+icu+" dr100k "+drate100000+" socialContactIndex "+socialidx+" MaxICU "+icumax;
+  document.getElementById("utdata1").innerHTML = strtxt;
+  console.log(strtxt);
+  //console.log("\nCycle %i Infected %i Dead %i Survived %i",updatecount, infectionCount, deathCount, survivorCount);
+  
+  if (updatecount%7==0){ // very 7 cycles - weekly
+    weeks=Math.round(updatecount/7);
+	strtxt2="<h2>Corona DeathAge Week "+weeks+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
+    for(var i=0;i<=100;i++){strtxt2=strtxt2+"<tr><th>"+i+"</th><th>"+coronaDeathAge[i]+"</th></tr>";}
+    document.getElementById("utdata2").innerHTML = strtxt2;
+  }
+  
+}
+CoronaSimulator();
+
+// show image
+ctx.putImageData(imgdata,0,0);
+
+updatecount++;
+
+// stop interval update
+if ((updatecount>2)&&(infectionCount==0)){
+  clearInterval(refreshIntervalId);
+  document.getElementById("utdata1").innerHTML = strtxt + " Simulation finished !";
+  weeks=Math.round(updatecount/7);
+  strtxt2="<h2>Corona DeathAge Week "+weeks+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
+  for(var i=0;i<=100;i++){strtxt2=strtxt2+"<tr><th>"+i+"</th><th>"+coronaDeathAge[i]+"</th></tr>";}
+  document.getElementById("utdata2").innerHTML = strtxt2;
+};
+
+} // End CoronaSim
+
+</script>
+
+<p id="utdata2"></p>
+
+</body>
+</html>
