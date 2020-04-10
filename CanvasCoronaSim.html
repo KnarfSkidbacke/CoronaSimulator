@@ -13,7 +13,16 @@ canvas {
 <body>
 <p id="utdata1"></p>
 
-<canvas id="myCanvas" width="1024" height="512" style="border:1px solid #d3d3d3;">
+<canvas id="myCanvas" width="512" height="256" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+<P></P>
+<canvas id="myCanvasfigure1" width="512" height="256" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+<P></P>
+<canvas id="myCanvasfigure1b" width="512" height="256" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+<P></P>
+<canvas id="myCanvasfigure2" width="512" height="256" style="border:1px solid #d3d3d3;">
 Your browser does not support the HTML5 canvas tag.</canvas>
 
 <script>
@@ -24,10 +33,97 @@ Your browser does not support the HTML5 canvas tag.</canvas>
 var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
 
+// dynamically adjust size
+ctx.canvas.width  = window.innerWidth;
+ctx.canvas.height = window.innerHeight;
+
 var imgdata = ctx.getImageData(0,0, c.width, c.height);
 var imgdatalen = imgdata.data.length;
-//var imgdata2 = imagdata;
 
+
+// figure
+// linear
+var c2 = document.getElementById("myCanvasfigure1");
+var ctx2 = c2.getContext("2d");
+// dynamically adjust size
+ctx2.canvas.width  = window.innerWidth;
+ctx2.canvas.height = window.innerHeight;
+// logarithmic
+var c2b = document.getElementById("myCanvasfigure1b");
+var ctx2b = c2b.getContext("2d");
+// dynamically adjust size
+ctx2b.canvas.width  = window.innerWidth;
+ctx2b.canvas.height = window.innerHeight;
+
+var c3 = document.getElementById("myCanvasfigure2");
+var ctx3 = c3.getContext("2d");
+// dynamically adjust size
+ctx3.canvas.width  = window.innerWidth;
+ctx3.canvas.height = window.innerHeight;
+
+//var imgdata2 = ctx2.getImageData(0,0, c2.width, c2.height);
+//var imgdatalen2 = imgdata2.data.length;
+
+// draw some basic diagram figur1
+// canvas top left corner is x,y=0,0 !
+ctx2.beginPath();
+ctx2.moveTo(50, 10); // Origa
+ctx2.lineTo(50,c2.height-50); // Y
+ctx2.lineTo(c2.width-50,c2.height-50); // X
+ctx2.moveTo(50,c2.height-50-10);
+ctx2.lineTo(10,c2.height-50-10);
+ctx2.strokeText("1000", 10,c2.height-50-12);
+ctx2.moveTo(50,c2.height-50-50);
+ctx2.lineTo(10,c2.height-50-50);
+ctx2.strokeText("5000", 10,c2.height-50-52);
+ctx2.moveTo(50,c2.height-50-100);
+ctx2.lineTo(10,c2.height-50-100);
+ctx2.strokeText("10000", 10,c2.height-50-102);
+ctx2.moveTo(50,c2.height-50-150);
+ctx2.lineTo(10,c2.height-50-150);
+ctx2.strokeText("15000", 10,c2.height-50-152);
+ctx2.moveTo(50,c2.height-50-200);
+ctx2.lineTo(10,c2.height-50-200);
+ctx2.strokeText("20000", 10,c2.height-50-202);
+ctx2.moveTo(50,c2.height-50-250);
+ctx2.lineTo(10,c2.height-50-250);
+ctx2.strokeText("25000", 10,c2.height-50-252);
+ctx2.moveTo(50,c2.height-50-300);
+ctx2.lineTo(10,c2.height-50-300);
+ctx2.strokeText("30000", 10,c2.height-50-302);
+ctx2.moveTo(50,c2.height-50-350);
+ctx2.lineTo(10,c2.height-50-350);
+ctx2.strokeText("35000", 10,c2.height-50-352);
+ctx2.moveTo(50,c2.height-50-400);
+ctx2.lineTo(10,c2.height-50-400);
+ctx2.strokeText("40000", 10,c2.height-50-402);
+ctx2.moveTo(50,c2.height-50-450);
+ctx2.lineTo(10,c2.height-50-450);
+ctx2.strokeText("45000", 10,c2.height-50-452);
+ctx2.moveTo(50,c2.height-50-500);
+ctx2.lineTo(10,c2.height-50-500);
+ctx2.strokeText("50000", 10,c2.height-50-502);
+ctx2.stroke();
+
+//ctx2.font = "20px Georgia";
+ctx2.font = "20px Arial";
+ctx2.strokeText("Persons", 60, 40);
+ctx2.strokeText("Cycles", c2.width-80, c2.height-60);
+ctx2.strokeText("linear", 60, c2.height-Math.round(c2.height/2)-60);
+
+
+
+ctx2b.font = "20px Arial";
+ctx2b.strokeText("Persons", 60, 40);
+ctx2b.strokeText("Cycles", c2.width-80, c2b.height-60);
+ctx2b.strokeText("logarithmic", 60, c2b.height-Math.round(c2b.height/2)-60);
+ctx2b.beginPath();
+ctx2b.moveTo(50, 10); // Origa
+ctx2b.lineTo(50,c2b.height-50); // Y
+ctx2b.lineTo(c2b.width-50,c2b.height-50); // X
+ctx2b.stroke();
+
+// code
 var updatecount = 0;
 
 var refreshIntervalId = setInterval(myTimer, 20);
@@ -190,7 +286,7 @@ if (women.length!=men.length){
   console.log("age length %i",agedata.length);
   
 }
-DemographicAgeDistributionInit()
+DemographicAgeDistributionInit();
 
 
 function TestDemographicAgeDistribution(){
@@ -244,6 +340,16 @@ function setpix(x,y,r,g,b,a) {
   imgdata.data[4*j+3] = a;
 }
 
+/* figur1 does not use bitmap
+function setpix2(x,y,r,g,b,a) {
+  var j = (y-1)*c2.width+x;
+  imgdata2.data[4*j] = r;
+  imgdata2.data[4*j+1] = g;
+  imgdata2.data[4*j+2] = b;
+  imgdata2.data[4*j+3] = a;
+}
+*/
+
 function getPixValue(x,y,n) {
   var j = (y-1)*c.width+x;
   var maxvalue = 0;
@@ -251,6 +357,7 @@ function getPixValue(x,y,n) {
   return maxvalue;
 }
 
+/*
 function maxPixValueFilterA(x,y,n) {
   // slow
   var maxvalue = 0;
@@ -259,16 +366,17 @@ function maxPixValueFilterA(x,y,n) {
     for(var iy=-1;iy<1;iy++){
       var j = (iy+y-1)*c.width+x+ix;
       maxvalue = Math.max(maxvalue,imgdata.data[4*j+n]);
-      /*
-	  if (n == 0) {maxvalue = Math.max(maxvalue,imgdata.data[4*j])};
-      if (n == 1) {maxvalue = Math.max(maxvalue,imgdata.data[4*j+1])}; // g
-      if (n == 2) {maxvalue = Math.max(maxvalue,imgdata.data[4*j+2])}; // b
-      if (n == 3) {maxvalue=Math.max(maxvalue,imgdata.data[4*j+3])}; // a;
-	  */
+      
+	  //if (n == 0) {maxvalue = Math.max(maxvalue,imgdata.data[4*j])};
+      //if (n == 1) {maxvalue = Math.max(maxvalue,imgdata.data[4*j+1])}; // g
+      //if (n == 2) {maxvalue = Math.max(maxvalue,imgdata.data[4*j+2])}; // b
+      //if (n == 3) {maxvalue=Math.max(maxvalue,imgdata.data[4*j+3])}; // a;
+	  
     }
   }
   return maxvalue;
 }
+*/
 
 function maxPixValueFilterB(x,y,n) {
   // fast
@@ -296,41 +404,97 @@ function makeBlack(){
 }
 makeBlack();
 
+// Standard Normal variate using Box-Muller transform.
+function randn_bm() {
+    var u = 0, v = 0;
+    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while(v === 0) v = Math.random();
+    return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+}
+
+function randn_bm_Mu_Sigma(Mu, Sigma) {
+    // Mu = mean/average
+	// Sigma = standard deviation
+    var u = 0, v = 0;
+    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while(v === 0) v = Math.random();
+    return Sigma * Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v ) + Mu;
+	/*
+	let y1 sqrt (2 - ln x1) * cos (2 * pi * x2)
+    let y1 sigma * sqrt (-2 * ln x1) * cos (2 * pi * x2) + mu
+	*/
+}
+
+function MyWeibull(x, scale, shape){
+  // scale = k
+  // shape = lambda
+  var wvalue = (scale/shape) * Math.pow((x/scale), (shape-1)) / Math.exp(Math.pow((x/scale), shape)); //generate Weibull random value
+  //console.log("WX %f %f %f WV %f", x, scale, shape, wvalue);
+  return wvalue;
+}
+
+function TestWeibull(){
+  var desiredMin = 1; //the desired minimum random result 
+  var desiredMax = 50; //the desired maximum random result 
+  var scale = 1.0; //k Weibul scale parameter (1 provides an inverse result set)
+  var shape = 1.5; //10; //lambda Weibul shape parameter (how skewed the result set is)
+  
+  //given an possible random range of {0,1} value calculate the minimum and maximum Weibull distribution values given current shape and scale parameters
+  var weibullMin = Math.pow((shape*scale), (-1*shape)) * Math.pow(.000001, shape -1) * Math.exp(Math.pow((.000001/scale), shape));
+  var weibullMax = Math.pow((shape*scale), (-1*shape)) * Math.pow(.999999, shape -1) * Math.exp(Math.pow((.999999/scale), shape));
+  
+  var xi= 3.5/800;
+  for(var i = 1; i <= 800; i++) {
+    var yw = Math.round(1000*(MyWeibull(3.5-i*xi, scale, shape)));
+    setpix(i, yw, 255,0,0,255);
+	console.log("X %i YW %i",i,yw);
+  }
+}
+//TestWeibull();
+
+ 
+/*
+//simulate 1000 random weibull values and write results to file
+fileStream.once('open', function(fd) {
+    for(var i = 1; i <= 1000; i++) {
+        var r = Math.random();
+        // Incorrect !? var weibullRandom = Math.pow((shape*scale), (-1*shape)) * Math.pow(r, shape-1) * Math.exp(Math.pow((r/scale), shape)); //generate Weibull random value
+        var weibullRandomAdjusted = desiredMin + (desiredMax - desiredMin)*((weibullRandom-weibullMin) / (weibullMax - weibullMin)); //adjust Weibull random value so that it constrained into the desired min/max range
+        fileStream.write(weibullRandomAdjusted + "\n");
+    };
+    fileStream.end();
+});
+*/
+
+
+
+/*
 function sinus(){
   var pf = 2.0*Math.PI/c.width; // 2*PI
   var amplitude=c.height/(2.0*15.0);
   for(var x=0;x<=c.width;x++){
     var y=Math.round(0.5*c.height+Math.sin(pf*x)*amplitude);
     setpix(x,y,0,255,0,255); // sinus
-    
-    setpix(x,Math.round(0.80*c.height),0,0,255,255); // horizon
-    /*
-    var j=(y-1)*c.width+x;
-    //console.log("%i %i %i %i", x,y,imgdatalen/4,j); // chrome debug
-    // Pixel 1
-    imgdata.data[4*j] = 255;
-    imgdata.data[4*j+1] = 0;
-    imgdata.data[4*j+2] = 0;
-    imgdata.data[4*j+3] = 255;
-    */  
   }
 }
 //sinus();
-
+*/
 
 
 //function DemographicAge(){
 //  return myRandomInteger(0, 2000);
 //}
 
+// Global variables
 var deathrateCorrectionFactor = 1.0;
 var icu=0; // intensive care
 var ratio_icu_dthr = 1.4;
 var dtf = 16;
 var df = Math.PI/dtf; // deasease function factor
 var hf = 32; // Health variation factor for deseas function
-var socialContactIndex = 1.1; // for SE - housing, living with old people 
+var socialContactIndex = 0.3; // for SE - housing, living with old people 
 var xzero=0;
+var maxInfected=0;
 var yzero=0;
 
 var weeks=0;
@@ -360,11 +524,28 @@ for(var i=0;i<imgdatalen/4;i++){
   age[i]=agedata[aidx];
 }
 
+// figure1 data for origo 50,c2.height-50 
+// initialize
+let xfig1=[50];
+let y1fig1=[c2.height-50];
+let y2fig1=[c2.height-50];
+let y3fig1=[c2.height-50];
+var y1last=c2.height-50; // origo
+var y2last=c2.height-50;
+var y3last=c2.height-50;
+var y1loglast=c2b.height-50; // origo
+var y2loglast=c2b.height-50;
+var y3loglast=c2b.height-50;
+
+var strtxt4="<h2>Corona Deaths</h2>"+"<table style=\"width:25%\">"+"<tr><th>Cycles</th><th>NoInfected</th><th>NoDead</th></tr>";
+	
 
 function CoronaSimInit(){  
   // initialise zero persom
-  var xi = 1+Math.floor((c.width-1)*Math.random());
-  var yi = 1+Math.floor((c.height-1)*Math.random());
+  var xi = Math.floor(c.width*0.3)+Math.floor(0.4*(c.width-1)*Math.random());
+  var yi = Math.floor(c.height*0.3)+Math.floor(0.4*(c.height-1)*Math.random());
+  //var xi = 1+Math.floor((c.width-1)*Math.random());
+  //var yi = 1+Math.floor((c.height-1)*Math.random());
   
   xzero=xi;
   yzero=yi;
@@ -381,6 +562,8 @@ var strtxt="";
 var infectionCount=0;
 var icumax=0;
 
+var scale = 1.0; //k Weibul scale parameter (1 provides an inverse result set)
+var shape = 1.5; //10; //lambda Weibul shape parameter (how skewed the result set is)
   
 function CoronaSim(){
 
@@ -397,7 +580,9 @@ function CoronaSimulator(){
 		
 		infection=Math.min(infection,myRandomInteger(-10,90));
 		//infection=myRandomInteger(1,infection);
-		if ((infection>0) && (infection<=255) && (myRandomInteger(-10,90)>0)){
+		var reluLevel=socialContactIndex*myRandomInteger(0,100);
+		//console.log("TestInfection %i RELU %i",infection, reluLevel);
+		if ((infection>0) && (infection<=255) && (reluLevel>10)){  // relu function
 	      //setpix(xi,yi,255,0,0,255);
 		  infectionLevel[j]=infection; // any value > 0
           //infectionLevel[j]=infection;
@@ -426,8 +611,14 @@ function CoronaSimulator(){
 		  //deseasLevel=infectionLevel[j]-hf+Math.round(hf*Math.sin(Math.PI*(8+infectionTimeStep[j])/32));
 		  //deseasLevel=health[j]+Math.round(hf*Math.sin(df*infectionTimeStep[j]));
           
-		  deathrateCorrectionFactor=0.027*Math.pow(age[j]/ageAverageLifeTime, 2)*socialContactIndex; // use square to adjust for higher prpability for older to die
-          if ((xi==xzero) && (yi==yzero)){console.log("I %i D %i R %i deathRateF %f",
+		  //deathrateCorrectionFactor=0.03*age[j]/(ageAverageLifeTime*randn_bm())*socialContactIndex;
+		  //deathrateCorrectionFactor=0.2*Math.pow(age[j]/ageAverageLifeTime, 6)*socialContactIndex; // use square to adjust for higher prpability for older to die
+          
+		  var xweibull=3.5*(1.0-age[j]/100.0); // weibull x scaled to be dependend of age 0-100 y
+		  deathrateCorrectionFactor=0.45*MyWeibull(xweibull, scale, shape)*Math.pow(age[j]/ageAverageLifeTime, 2);
+		   
+		  
+		  if ((xi==xzero) && (yi==yzero)){console.log("I %i D %i R %i deathRateF %f",
                 infectionLevel[j], deseasLevel, myRandomInteger(0,1), deathrateCorrectionFactor);}
 		  
 		  if ((deseasLevel<=0) && (Math.random()<=deathrateCorrectionFactor)){  // deathrate
@@ -436,7 +627,7 @@ function CoronaSimulator(){
 			deseasLevel=0; 
 			health[j]=0; // death !
 			infectionLevel[j]=-1;
-			console.log("Death X %i Y %i L %i T %i D %i",xi,yi,infectionLevel[j],infectionTimeStep[j],deseasLevel);
+			//console.log("Death X %i Y %i L %i T %i D %i",xi,yi,infectionLevel[j],infectionTimeStep[j],deseasLevel);
 			setpix(xi,yi,0,255,0,255);
 		  }
 		}
@@ -490,22 +681,170 @@ function CoronaSimulator(){
 		
   	}
   }
+  
   strtxt= "Cycle "+ updatecount +" Infected "+  infectionCount + " Dead "+ deathCount + " Healthy "+ survivorCount; 
   var drate100000=deathrateCorrectionFactor.toFixed(4);
   icu=Math.round(0.08*infectionCount);
   icumax=Math.max(icumax,icu);
   var socialidx=socialContactIndex.toFixed(2);
-  strtxt=strtxt+" ICU "+icu+" dr100k "+drate100000+" socialContactIndex "+socialidx+" MaxICU "+icumax;
+  maxInfected=Math.max(maxInfected,infectionCount);
+  strtxt=strtxt+" ICU "+icu+" dr100k "+drate100000+" socialContactIndex "+socialidx+" MaxICU "+icumax+" MaxInfected "+maxInfected;
   document.getElementById("utdata1").innerHTML = strtxt;
   console.log(strtxt);
   //console.log("\nCycle %i Infected %i Dead %i Survived %i",updatecount, infectionCount, deathCount, survivorCount);
   
+  if (updatecount%50==0){ //  use 25 cycles as it is not clear a cycle is a day , could be hours och ?? every 7 cycles - weekly
+    //var strtxt4="<h2>Corona Deaths</h2>"+"<table style=\"width:25%\">"+"<tr><th>Cycles</th><th>NoDead</th></tr>";
+    strtxt4=strtxt4+"<tr><th>"+updatecount+"</th><th>"+infectionCount+"</th><th>"+deathCount+"</th></tr>";
+	document.getElementById("utdata3").innerHTML = strtxt4;
+  }	
+  
   if (updatecount%25==0){ //  use 25 cycles as it is not clear a cycle is a day , could be hours och ?? every 7 cycles - weekly
-    //weeks=Math.round(updatecount/7);
+    var maxCoronaDeathAge=0;
+	//weeks=Math.round(updatecount/7);
 	//strtxt2="<h2>Corona DeathAge Cycles "+weeks+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
     strtxt2="<h2>Corona DeathAge Cycles "+updatecount+"</h2>"+"<table style=\"width:25%\">"+"<tr><th>Age</th><th>NoDead</th></tr>";
-	for(var i=0;i<=100;i++){strtxt2=strtxt2+"<tr><th>"+i+"</th><th>"+coronaDeathAge[i]+"</th></tr>";}
+	for(var i=0;i<=100;i++){
+	  strtxt2=strtxt2+"<tr><th>"+i+"</th><th>"+coronaDeathAge[i]+"</th></tr>";
+	  maxCoronaDeathAge=Math.max(maxCoronaDeathAge, coronaDeathAge[i]);
+	}
     document.getElementById("utdata2").innerHTML = strtxt2;
+	
+	/*
+	// figure2
+	var xf3=50;
+	ctx3.fillStyle = "#FF0000";
+	for(var iix=0;iix<=100;iix++){
+	  var yf3=50+Math.round(coronaDeathAge[i].length/10);
+	  ctx3.fillRect(xf3, 0, xf3+5, yf3);
+	  xf3+=10;
+	}
+	ctx3.stroke();
+	*/
+	
+	
+	var yf3scale=1.0;
+	if (maxCoronaDeathAge>500){yf3scale=500.0/maxCoronaDeathAge;}
+	var xf2=50;
+	
+	ctx3.beginPath();
+	ctx3.font = "20px Arial";
+	var strtxt3="Dead Age distribution - Total dead "+deathCount+" Cycles "+updatecount+ " Infected "+  infectionCount;
+    ctx3.clearRect(60,0,c3.width,50);
+	ctx3.strokeText(strtxt3, 60, 40);
+    //ctx3.strokeText("Cycles", c2.width-10, c2.height-20);
+
+    //ctx3.strokeStyle = "#990099"; // lila
+	ctx3.strokeStyle = "#000000"; // black
+	for(var iix=0;iix<=100;iix++){
+	  if (iix%20==0){
+	    ctx3.moveTo(xf2, c3.height-20);
+        ctx3.lineTo(xf2, c3.height-50);
+	    ctx3.strokeText(iix, xf2+3, c3.height-20);
+	  }
+	  ctx3.moveTo(xf2, c3.height-50);
+	  var y3= Math.round(coronaDeathAge[iix] * yf3scale);
+      ctx3.lineTo(xf2, c3.height-50-y3); // maxy=500
+	  //ctx3.lineTo(xf2, c3.height-50-iix*5); // maxy=500
+	  //ctx3.fillRect(xf2, c3.height-50, xf3+5, c3.height-50-100);
+	  xf2+=10;
+	}
+	ctx3.stroke();
+	
+  }
+  
+  
+  // save data for later on diagram
+  y1fig1[updatecount]=infectionCount;
+  y2fig1[updatecount]=deathCount;
+  y3fig1[updatecount]=icu; 
+  
+  
+  // figure1
+  var fig1divx=5;
+  if ((updatecount%fig1divx==0)&&(updatecount>0)){
+    var xf1=50+Math.round(updatecount/fig1divx);
+	jf=updatecount;
+	
+	
+    /*
+    // figure1 as bitmap
+    setpix2(50+updatecount, c2.height-50-updatecount   ,255,128,0,255);
+    setpix2(50+updatecount,c2.height-50-Math.round((updatecount)/2),255,0,128,255);
+    setpix2(50+updatecount,c2.height-50-Math.round((updatecount)/3),0,128,255,255);
+    */
+    
+	// linear
+	var y1=c2.height-50-Math.round(y1fig1[jf]/100); // scale to Y
+	//var y1=c2.height-50-Math.round(Math.log(y1fig1[jf])); // scale to Y
+	//console.log("jf %i xf1 %i y1fig1 %i",jf,xf1,y1);
+    ctx2.beginPath();
+    ctx2.strokeStyle = "#990099";
+	//ctx2.strokeStyle = "orange";
+	ctx2.moveTo(xf1, y1last);
+    ctx2.lineTo(xf1, y1);
+	//ctx2.moveTo(xf1, c2.height-50-updatecount);
+    //ctx2.lineTo(xf1, c2.height-50-updatecount+1);
+    //ctx2.moveTo(50+updatecount, c2.height-50-updatecount);
+    //ctx2.lineTo(50+updatecount, c2.height-50-updatecount+1);
+    //ctx2.lineTo(c2.width-50,c2.height-50);
+    ctx2.stroke();
+    y1last=y1;
+	
+	var y2=c2.height-50-Math.round(y2fig1[jf]/100); // scale to Y
+	//var y2=c2.height-50-Math.log(y2fig1[jf]); // scale to Y
+    ctx2.beginPath();
+    ctx2.strokeStyle = "black";
+    ctx2.moveTo(xf1, y2last);
+    ctx2.lineTo(xf1, y2);
+    ctx2.stroke();
+    y2last=y2;
+	
+	var y3=c2.height-50-Math.round(y3fig1[jf]/100); // scale to Y
+    //var y3log=c2.height-50-Math.log(y3fig1[jf]); // scale to Y
+	ctx2.beginPath();
+    ctx2.strokeStyle = "blue";
+    ctx2.moveTo(xf1, y3last);
+    ctx2.lineTo(xf1, y3);
+    ctx2.stroke();
+	y3last=y3;
+	
+	// logarithmic
+	//var y1=c2.height-50-Math.round(y1fig1[jf]/100); // scale to Y
+	var y1log=c2b.height-50-Math.round(50*Math.log10(y1fig1[jf])); // scale to Y
+	//var y1log=Math.round(50*Math.log10(y1fig1[jf]));
+	//console.log("LOGFIG jf %i xf1 %i y1fig1 %i log %f",jf,xf1,y1log,Math.log(y1fig1[jf]));
+    ctx2b.beginPath();
+    ctx2b.strokeStyle = "#990099";
+	//ctx2.strokeStyle = "orange";
+	ctx2b.moveTo(xf1, y1loglast);
+    ctx2b.lineTo(xf1, y1log);
+	//ctx2.moveTo(xf1, c2.height-50-updatecount);
+    //ctx2.lineTo(xf1, c2.height-50-updatecount+1);
+    //ctx2.moveTo(50+updatecount, c2.height-50-updatecount);
+    //ctx2.lineTo(50+updatecount, c2.height-50-updatecount+1);
+    //ctx2.lineTo(c2.width-50,c2.height-50);
+    ctx2b.stroke();
+    y1loglast=y1log;
+	
+	//var y2=c2.height-50-Math.round(y2fig1[jf]/100); // scale to Y
+	var y2log=c2b.height-50-Math.round(50*Math.log10(y2fig1[jf])); // scale to Y
+    ctx2b.beginPath();
+    ctx2b.strokeStyle = "black";
+    ctx2b.moveTo(xf1, y2loglast);
+    ctx2b.lineTo(xf1, y2log);
+    ctx2b.stroke();
+    y2loglast=y2log;
+	
+	//var y3=c2.height-50-Math.round(y3fig1[jf]/100); // scale to Y
+    var y3log=c2b.height-50-Math.round(50*Math.log10(y3fig1[jf])); // scale to Y
+	ctx2b.beginPath();
+    ctx2b.strokeStyle = "blue";
+    ctx2b.moveTo(xf1, y3loglast);
+    ctx2b.lineTo(xf1, y3log);
+    ctx2b.stroke();
+	y3loglast=y3log;
+	
   }
   
 }
@@ -513,11 +852,20 @@ CoronaSimulator();
 
 // show image
 ctx.putImageData(imgdata,0,0);
+// show figure1
+//ctx2.putImageData(imgdata2,0,0); // bitmap
+
 
 updatecount++;
 
+var finished=false;
+
+if (updatecount>100){
+  if ( y3fig1[updatecount]==y3fig1[updatecount-100]) { finished=true;} // no more change => finish?!
+}
+
 // stop interval update
-if ((updatecount>2)&&(infectionCount==0)){
+if (finished||((updatecount>2)&&(infectionCount==0))){
   clearInterval(refreshIntervalId);
   document.getElementById("utdata1").innerHTML = strtxt + " Simulation finished !";
   //weeks=Math.round(updatecount/7);
@@ -531,9 +879,13 @@ if ((updatecount>2)&&(infectionCount==0)){
 
 </script>
 
-<P>This CoronaSimulator uses demographic data for sweden of 2019.</P>
+<P>Ver.1.8, This CoronaSimulator uses demographic data for Sweden 2019.</P>
+<P>To change total no of persons used in simulation resize the browser size !</P>
 
 <p id="utdata2"></p>
+
+<P></P>
+<p id="utdata3"></p>
 
 </body>
 </html>
