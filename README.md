@@ -12,5 +12,7 @@ The actual infection growth is simulated by using a maxfilter over 4 closests gr
 <P>
 The demographic data has a resolution of 1 year, Sweden 2019 data, which is combined from data for men and women.
 <P>
-Each infected person is assumed to go thru incubation, sick and recovery cycle, which is being modelled using a sinus function. The positive sinus is when a perosn is infected then the sinus drops to negativ after the incubation, ther perosn becomes really sick. At the peak sickness level a randomfunction connects to the probability of age for death to be more likly for older people.
+Each infected person is assumed to go thru incubation, sick and recovery cycle, which is being modelled using a sinus function. The positive sinus is when a person is infected then the sinus drops to negativ after the incubation, the person becomes really sick.
+<P>
+At the peak sickness level, min sinus value, a randomfunction connects to the probability of age for death to be more likely for older people. To account for the overall distribution of deat a weibull function is used. The weibull function is multiplyed by a ratio (age/averageage)^2 which empasis the focus on older people.
 
