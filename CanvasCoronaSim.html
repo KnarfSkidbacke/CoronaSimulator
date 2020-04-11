@@ -877,11 +877,28 @@ if (finished||((updatecount>2)&&(infectionCount==0))){
 
 } // End CoronaSim
 
+function updateSocialContactIndex(newscidx){
+  var newscidxvalue= parseInt(newscidx)/100.0;
+  console.log("NEW SCIDX %f",newscidxvalue);
+  if ((newscidxvalue>0.0)&& (newscidxvalue<=2.0)){socialContactIndex = newscidxvalue;}
+}
+
+//<input type="button" onclick="updateSocialContactIndex(document.getElementById('socContIdx').value.getElementById('scidx').value)">Update Social Contact Index</button> 
+
 </script>
 
-<P>Ver.1.8, This CoronaSimulator uses demographic data for Sweden 2019.</P>
+<P>Ver.1.9, This CoronaSimulator uses demographic data for Sweden 2019. CreatedBy F.Schliephacke, 2020.</P>
 <P>To change total no of persons used in simulation resize the browser size !</P>
 
+<form action="#">
+ Social Contact Index (1%-200%): <input type="number" name="socContIdx" id="scidx"><br>
+ <input type="button" onclick="updateSocialContactIndex(document.getElementById('scidx').value)" value="Update Social Contact Index">
+</form>
+ 
+<P>~100% normal life - no old people (grand parents) at home</P>
+<P>~30% restricted life - work@home, no going out for eating and cinema</P> 
+<br>
+ 
 <p id="utdata2"></p>
 
 <P></P>
